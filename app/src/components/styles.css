@@ -1,4 +1,4 @@
-/* styles.css */
+/* General Body Styling */
 body {
     display: flex;
     justify-content: center;
@@ -6,6 +6,21 @@ body {
     height: 100vh; /* Full viewport height */
     margin: 0;
     background-color: #f0f0f0; /* Optional background color */
+}
+
+/* Main App Container */
+.App {
+    display: flex;
+    justify-content: space-between;
+    width: 80%; /* Adjust width of entire content */
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* Main Content (Upload Section) */
+.main-content {
+    flex: 2;
+    margin-right: 20px; /* Space between main content and sidebar */
 }
 
 .container {
@@ -16,13 +31,16 @@ body {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 400px; /* Set a width */
+    width: 100%; /* Full width inside main content */
+    max-width: 400px; /* Optional max width */
 }
 
+/* Title Styling */
 h2 {
     margin-bottom: 20px;
 }
 
+/* File Input Styles */
 input[type="file"] {
     display: none; /* Hide default file input */
 }
@@ -40,16 +58,7 @@ input[type="file"] {
     background-color: #e9f5ff; /* Lighten on hover */
 }
 
-.message {
-    margin-top: 15px;
-    color: #ff0000; /* Error color */
-}
-
-.subtitle-info {
-    margin-top: 10px;
-    color: #28a745; /* Success color */
-}
-
+/* Drop Area Styles */
 .drop-area {
     padding: 20px;
     border: 2px dashed #007bff;
@@ -62,4 +71,55 @@ input[type="file"] {
 
 .drop-area:hover {
     background-color: #e9f5ff; /* Lighten on hover */
+}
+
+/* Message and Subtitle Info Styling */
+.message {
+    margin-top: 15px;
+    color: #ff0000; /* Error color */
+}
+
+.subtitle-info {
+    margin-top: 10px;
+    color: #28a745; /* Success color */
+}
+
+/* Sidebar for Recent Subtitles */
+.sidebar {
+    flex: 1;
+    margin-left: 20px; /* Space between main content and sidebar */
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    max-width: 350px; /* Adjust sidebar width */
+}
+
+/* Recent Subtitles List */
+.recent-subtitles {
+    margin-top: 20px;
+}
+
+.recent-subtitles ul {
+    list-style: none;
+    padding: 0;
+}
+
+.recent-subtitles li {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.recent-subtitles button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.recent-subtitles button:hover {
+    background-color: #0056b3;
 }

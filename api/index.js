@@ -17,6 +17,7 @@ app.use(cors());
 
 mongoose.connect(process.env.MONGO_URI);
 
+// Subtitle Schema
 const SubtitleSchema = new mongoose.Schema({
   sha256: String,
   subtitles: [
@@ -49,7 +50,7 @@ app.post('/upload', upload.single('video'), async (req, res) => {
 
   const videoFilePath = path.join(__dirname, req.file.path);
   const audioFilePath = path.join(__dirname, `uploads/${Date.now()}-audio.mp3`);
-  const originalFilename = path.parse(req.file.originalname).name; 
+  const originalFilename = path.parse(req.file.originalname).name;
 
   try {
     if (!fs.existsSync(videoFilePath)) {
@@ -81,10 +82,10 @@ app.post('/upload', upload.single('video'), async (req, res) => {
 
     if (subtitleRecord) {
       console.log(`Subtitles found in database in ${Date.now() - startTime} ms.`);
-      return res.json({ 
-        message: 'Subtitles fetched from database.', 
+      return res.json({
+        message: 'Subtitles fetched from database.',
         sha256: subtitleRecord.sha256,
-        filename: subtitleRecord.originalFilename, 
+        filename: subtitleRecord.originalFilename,
         format: subtitleRecord.format,
         subtitleSize: subtitleRecord.subtitles.length,  // Return the number of sentences
       });
@@ -98,14 +99,14 @@ app.post('/upload', upload.single('video'), async (req, res) => {
       {
         headers: {
           Authorization: `Token ${process.env.DEEPGRAM_API_KEY}`,
-          'Content-Type': 'audio/mp3', 
-          Accept: 'application/json',   
+          'Content-Type': 'audio/mp3',
+          Accept: 'application/json',
         },
         params: {
           model: 'nova-2',
           smart_format: true,
         },
-        responseType: 'json', 
+        responseType: 'json',
       }
     );
     console.log(`Deepgram API request completed in ${Date.now() - deepgramStart} ms.`);
@@ -123,7 +124,7 @@ app.post('/upload', upload.single('video'), async (req, res) => {
 
     words.forEach((word, index) => {
       currentSentence.text += word.punctuated_word || word.word;
-      
+
       if (word.punctuated_word && (word.punctuated_word.endsWith('.') || word.punctuated_word.endsWith(','))) {
         currentSentence.end = word.end;
         sentences.push(currentSentence);
@@ -147,10 +148,10 @@ app.post('/upload', upload.single('video'), async (req, res) => {
     await subtitleRecord.save();
     console.log(`Subtitles saved to database in ${Date.now() - dbSaveStart} ms.`);
 
-    res.json({ 
-      message: 'Subtitles fetched from Deepgram API and saved to database.', 
+    res.json({
+      message: 'Subtitles fetched from Deepgram API and saved to database.',
       sha256,
-      filename: originalFilename, 
+      filename: originalFilename,
       format: 'json',
       subtitleSize: sentences.length,  // Return the number of sentences
     });
@@ -160,7 +161,7 @@ app.post('/upload', upload.single('video'), async (req, res) => {
   } finally {
     // Cleanup the uploaded and extracted files
     if (fs.existsSync(videoFilePath)) {
-      fs.unlinkSync(videoFilePath); 
+      fs.unlinkSync(videoFilePath);
     }
     if (fs.existsSync(audioFilePath)) {
       fs.unlinkSync(audioFilePath);
@@ -169,6 +170,30 @@ app.post('/upload', upload.single('video'), async (req, res) => {
   }
 });
 
+// New route to fetch all recent subtitles
+app.get('/subtitles/recent', async (req, res) => {
+  try {
+    console.log('Fetching recent subtitles...');
+    
+    // Fetch the most recent subtitles (you can adjust the limit as needed)
+    const recentSubtitles = await Subtitle.find().sort({ _id: -1 }).limit(10);
+    
+    console.log('Recent subtitles fetched:', recentSubtitles); // Log what was fetched
+
+    if (!recentSubtitles || recentSubtitles.length === 0) {
+      console.log('No recent subtitles found.');
+      return res.status(404).json({ message: 'No recent subtitles found.' });
+    }
+
+    // Send the subtitles back to the client
+    res.json(recentSubtitles);
+  } catch (err) {
+    console.error('Error fetching recent subtitles:', err);
+    res.status(500).json({ error: 'An error occurred while fetching recent subtitles.' });
+  }
+});
+
+// Route to fetch subtitles by sha256 and download them as .srt
 app.get('/subtitles/:sha256', async (req, res) => {
   const { sha256 } = req.params;
 

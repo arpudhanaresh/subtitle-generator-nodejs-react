@@ -1,10 +1,16 @@
 import React from 'react';
 import Upload from './components/upload';
+import RecentSubtitles from './components/RecentSubtitles';
 
 function App() {
   return (
     <div className="App">
-      <Upload />
+      <div className="main-content">
+        <Upload />
+      </div>
+      <div className="sidebar">
+        <RecentSubtitles />
+      </div>
     </div>
   );
 }
