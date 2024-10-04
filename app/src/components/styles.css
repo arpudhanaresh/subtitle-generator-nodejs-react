@@ -1,0 +1,65 @@
+/* styles.css */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    margin: 0;
+    background-color: #f0f0f0; /* Optional background color */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 400px; /* Set a width */
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+input[type="file"] {
+    display: none; /* Hide default file input */
+}
+
+.label {
+    padding: 20px;
+    border: 2px dashed #007bff;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%; /* Full width */
+    text-align: center;
+}
+
+.label:hover {
+    background-color: #e9f5ff; /* Lighten on hover */
+}
+
+.message {
+    margin-top: 15px;
+    color: #ff0000; /* Error color */
+}
+
+.subtitle-info {
+    margin-top: 10px;
+    color: #28a745; /* Success color */
+}
+
+.drop-area {
+    padding: 20px;
+    border: 2px dashed #007bff;
+    border-radius: 10px;
+    text-align: center;
+    margin: 10px 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.drop-area:hover {
+    background-color: #e9f5ff; /* Lighten on hover */
+}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './styles.css'; // Import the CSS file
 
 const FileUpload = () => {
     const [file, setFile] = useState(null);
@@ -8,12 +9,23 @@ const FileUpload = () => {
     const [videoFileSize, setVideoFileSize] = useState(null);
     const [subtitleSize, setSubtitleSize] = useState(null);
 
-    const onFileChange = (e) => {
-        const selectedFile = e.target.files[0];
+    const onFileChange = (selectedFile) => {
         setFile(selectedFile);
         if (selectedFile) {
             setVideoFileSize(selectedFile.size);
         }
+    };
+
+    const onDrop = (e) => {
+        e.preventDefault();
+        const selectedFile = e.dataTransfer.files[0];
+        if (selectedFile) {
+            onFileChange(selectedFile);
+        }
+    };
+
+    const onDragOver = (e) => {
+        e.preventDefault(); // Prevent default to allow drop
     };
 
     const onSubmit = async (e) => {
@@ -29,7 +41,7 @@ const FileUpload = () => {
             });
             setMessage(res.data.message);
             setSha256(res.data.sha256);
-            setSubtitleSize(res.data.subtitleSize);   // Set the subtitle size
+            setSubtitleSize(res.data.subtitleSize);
         } catch (err) {
             if (err.response && err.response.data) {
                 setMessage(err.response.data.error);
@@ -57,15 +69,34 @@ const FileUpload = () => {
     };
 
     return (
-        <div>
+        <div className="container">
             <h2>Upload Video File</h2>
             <form onSubmit={onSubmit}>
-                <input type="file" name="video" onChange={onFileChange} />
-                {videoFileSize !== null && <p>Selected File Size: {formatFileSize(videoFileSize)}</p>}
+                <div
+                    className="drop-area"
+                    onDrop={onDrop}
+                    onDragOver={onDragOver}
+                >
+                    {file ? file.name : 'Drag & drop your video file here or click to select'}
+                </div>
+                <input
+                    type="file"
+                    name="video"
+                    onChange={(e) => onFileChange(e.target.files[0])}
+                    style={{ display: 'none' }} // Hide default file input
+                />
+                <button type="button" onClick={() => document.querySelector('input[type="file"]').click()}>
+                    Select File
+                </button>
+                {videoFileSize !== null && (
+                    <p>Selected File Size: {formatFileSize(videoFileSize)}</p>
+                )}
                 <button type="submit">Upload</button>
             </form>
-            {message && <p>{message}</p>}
-            {subtitleSize !== null && <p>Subtitle Size: {subtitleSize} sentences</p>}
+            {message && <p className="message">{message}</p>}
+            {subtitleSize !== null && (
+                <p className="subtitle-info">Subtitle Size: {subtitleSize} sentences</p>
+            )}
             {sha256 && (
                 <button onClick={downloadSubtitles}>Download Subtitles</button>
             )}
