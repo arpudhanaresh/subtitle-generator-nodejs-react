@@ -7,6 +7,8 @@ const RecentSubtitles = () => {
   const [searchTerm, setSearchTerm] = useState(''); // Search term
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [shareURL, setShareURL] = useState(''); // For storing the shareable URL
+  const [copySuccess, setCopySuccess] = useState(''); // Copy success message
 
   // Fetch recent subtitles on component mount
   useEffect(() => {
@@ -42,6 +44,38 @@ const RecentSubtitles = () => {
     window.open(`http://localhost:5000/subtitles/${sha256}`, '_blank');
   };
 
+  // Function to handle sharing the subtitle via file.io
+  const shareSubtitle = async (sha256, originalFilename) => {
+    try {
+      // Fetch the subtitle content in SRT format from the server
+      const res = await axios.get(`http://localhost:5000/subtitles/${sha256}`, {
+        responseType: 'blob',
+      });
+
+      // Create a FormData object for uploading the subtitle file to file.io
+      const formData = new FormData();
+      formData.append('file', new Blob([res.data], { type: 'text/plain' }), `${originalFilename}.srt`);
+
+      // Upload the file to file.io
+      const uploadRes = await axios.post('https://file.io/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      // Get the URL from the file.io response and set it in the state
+      setShareURL(uploadRes.data.link);
+    } catch (err) {
+      console.error('Error sharing subtitle:', err);
+    }
+  };
+
+  // Function to copy the share URL to the clipboard
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(shareURL).then(
+      () => setCopySuccess('Copied!'),
+      () => setCopySuccess('Failed to copy!')
+    );
+  };
+
   return (
     <div className="recent-subtitles">
       <h3>Recent Subtitles</h3>
@@ -69,9 +103,19 @@ const RecentSubtitles = () => {
                 {subtitle.originalFilename} - {subtitle.subtitles.length} sentences
               </p>
               <button onClick={() => downloadSubtitle(subtitle.sha256)}>Download</button>
+              <button onClick={() => shareSubtitle(subtitle.sha256, subtitle.originalFilename)}>Share</button>
             </li>
           ))}
         </ul>
+      )}
+
+      {/* Display shareable URL */}
+      {shareURL && (
+        <div className="share-section">
+          <p>Shareable URL: <a href={shareURL} target="_blank" rel="noopener noreferrer">{shareURL}</a></p>
+          <button onClick={copyToClipboard}>Copy URL</button>
+          {copySuccess && <span>{copySuccess}</span>}
+        </div>
       )}
     </div>
   );

@@ -9,12 +9,13 @@ const FileUpload = () => {
     const [videoFileSize, setVideoFileSize] = useState(null);
     const [subtitleSize, setSubtitleSize] = useState(null);
     const [videoURL, setVideoURL] = useState(null); // Store the video URL
+    const [shareURL, setShareURL] = useState(''); // Store the shareable URL
+    const [copySuccess, setCopySuccess] = useState(''); // Success message for copy
 
     const onFileChange = (selectedFile) => {
         setFile(selectedFile);
         if (selectedFile) {
             setVideoFileSize(selectedFile.size);
-            
             // Create a local URL for the video file and set the videoURL state
             const videoUrl = URL.createObjectURL(selectedFile);
             setVideoURL(videoUrl);
@@ -60,6 +61,38 @@ const FileUpload = () => {
         window.open(`http://localhost:5000/subtitles/${sha256}`, '_blank');
     };
 
+    // Function to share subtitles via file.io
+    const shareSubtitle = async () => {
+        try {
+            // Fetch the subtitle file from the backend in SRT format
+            const res = await axios.get(`http://localhost:5000/subtitles/${sha256}`, {
+                responseType: 'blob',
+            });
+
+            // Create a FormData object and append the subtitle file to it
+            const formData = new FormData();
+            formData.append('file', new Blob([res.data], { type: 'text/plain' }), `subtitle_${sha256}.srt`);
+
+            // Upload the subtitle file to file.io
+            const uploadRes = await axios.post('https://file.io/', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            });
+
+            // Store the file.io link in the state
+            setShareURL(uploadRes.data.link);
+        } catch (err) {
+            console.error('Error sharing subtitle:', err);
+        }
+    };
+
+    // Function to copy the share URL to the clipboard
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(shareURL).then(
+            () => setCopySuccess('Copied!'),
+            () => setCopySuccess('Failed to copy!')
+        );
+    };
+
     const formatFileSize = (sizeInBytes) => {
         const units = ['Bytes', 'KB', 'MB', 'GB'];
         let size = sizeInBytes;
@@ -103,7 +136,10 @@ const FileUpload = () => {
                 <p className="subtitle-info">Subtitle Size: {subtitleSize} sentences</p>
             )}
             {sha256 && (
-                <button onClick={downloadSubtitles}>Download Subtitles</button>
+                <>
+                    <button onClick={downloadSubtitles}>Download Subtitles</button>
+                    <button onClick={shareSubtitle}>Share Subtitles</button>
+                </>
             )}
 
             {/* Video player */}
@@ -113,6 +149,15 @@ const FileUpload = () => {
                     <video controls width="400" src={videoURL}>
                         Your browser does not support the video tag.
                     </video>
+                </div>
+            )}
+
+            {/* Display shareable URL */}
+            {shareURL && (
+                <div className="share-section">
+                    <p>Shareable URL: <a href={shareURL} target="_blank" rel="noopener noreferrer">{shareURL}</a></p>
+                    <button onClick={copyToClipboard}>Copy URL</button>
+                    {copySuccess && <span>{copySuccess}</span>}
                 </div>
             )}
         </div>

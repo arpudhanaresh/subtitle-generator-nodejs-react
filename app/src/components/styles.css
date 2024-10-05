@@ -151,3 +151,49 @@ input[type="file"] {
     border-radius: 5px;
   }
   
+
+  .share-section {
+    margin-top: 15px;
+  }
+  
+  .share-section a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .share-section a:hover {
+    text-decoration: underline;
+  }
+  
+  button {
+    margin-right: 10px;
+  }
+  
+  span {
+    margin-left: 10px;
+    color: green;
+  }
+  
+
+  .share-section {
+    margin-top: 15px;
+  }
+  
+  .share-section a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .share-section a:hover {
+    text-decoration: underline;
+  }
+  
+  button {
+    margin-right: 10px;
+  }
+  
+  span {
+    margin-left: 10px;
+    color: green;
+  }
+  
