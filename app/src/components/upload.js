@@ -8,11 +8,16 @@ const FileUpload = () => {
     const [sha256, setSha256] = useState('');
     const [videoFileSize, setVideoFileSize] = useState(null);
     const [subtitleSize, setSubtitleSize] = useState(null);
+    const [videoURL, setVideoURL] = useState(null); // Store the video URL
 
     const onFileChange = (selectedFile) => {
         setFile(selectedFile);
         if (selectedFile) {
             setVideoFileSize(selectedFile.size);
+            
+            // Create a local URL for the video file and set the videoURL state
+            const videoUrl = URL.createObjectURL(selectedFile);
+            setVideoURL(videoUrl);
         }
     };
 
@@ -99,6 +104,16 @@ const FileUpload = () => {
             )}
             {sha256 && (
                 <button onClick={downloadSubtitles}>Download Subtitles</button>
+            )}
+
+            {/* Video player */}
+            {videoURL && (
+                <div className="video-player">
+                    <h3>Preview Video</h3>
+                    <video controls width="400" src={videoURL}>
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
             )}
         </div>
     );

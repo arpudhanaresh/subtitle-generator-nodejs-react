@@ -123,3 +123,31 @@ input[type="file"] {
 .recent-subtitles button:hover {
     background-color: #0056b3;
 }
+
+
+.video-player {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  video {
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #007bff;
+    border-radius: 10px;
+  }
+  
+  h3 {
+    margin-bottom: 10px;
+  }
+  
+
+  .search-input {
+    margin-bottom: 15px;
+    padding: 10px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
