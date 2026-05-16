@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm audit *)",
+      "Bash(npm show *)",
+      "Bash(node -e \"const v=JSON.parse\\(require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\)\\); const sorted=v.filter\\(x=>!x.includes\\('-'\\)\\); console.log\\('latest 1.x:', sorted.filter\\(x=>x.startsWith\\('1.'\\)\\).slice\\(-3\\).join\\(', '\\)\\); console.log\\('latest 2.x:', sorted.filter\\(x=>x.startsWith\\('2.'\\)\\).slice\\(-3\\).join\\(', '\\)\\)\")",
+      "Bash(node -e \"const lock=require\\('./package-lock.json'\\); const entries=Object.keys\\(lock.packages\\).filter\\(k=>k.includes\\('brace-expansion'\\)\\); entries.forEach\\(k=>console.log\\(k, lock.packages[k].version\\)\\)\")",
+      "Bash(node -e \"const lock=require\\('./package-lock.json'\\); const entries=Object.keys\\(lock.packages\\).filter\\(k=>k.includes\\('picomatch'\\)\\); entries.forEach\\(k=>console.log\\(k, lock.packages[k].version\\)\\)\")",
+      "Bash(node -e ' *)"
+    ]
+  }
+}
