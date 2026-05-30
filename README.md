@@ -1,45 +1,132 @@
 # Subtitle Generator
 
-A full-stack subtitle generator. Upload a video, extract its audio, send the
-audio to Deepgram for transcription, store the result in MySQL, and download the
-generated subtitles as an `.srt` file.
+A full-stack web application that generates subtitles from uploaded videos.
 
-## Stack
+Users upload a video, the backend extracts the audio, sends it to Deepgram for
+speech-to-text transcription, stores the generated subtitle data in MySQL, and
+returns a downloadable `.srt` file.
 
-- Frontend: Vite, React, TypeScript, Tailwind CSS
-- Backend: Python, FastAPI, SQLAlchemy, PyMySQL
-- Database: MySQL
-- Transcription: Deepgram
-- Audio extraction: bundled FFmpeg through `imageio-ffmpeg`
+## Features
+
+- Upload video files from the browser.
+- Extract audio from video on the backend.
+- Generate speech-to-text subtitles with Deepgram.
+- Store subtitle results in MySQL.
+- Avoid duplicate work by caching transcriptions with a SHA-256 audio hash.
+- View recent subtitle generations.
+- Download subtitles as `.srt` files.
+- Run locally with PowerShell commands.
+- Deploy with Docker.
+
+## Tech Stack
+
+### Frontend
+
+- Vite
+- React
+- TypeScript
+- Tailwind CSS
+- Axios
+
+### Backend
+
+- Python
+- FastAPI
+- Uvicorn
+- SQLAlchemy
+- PyMySQL
+- Deepgram REST API
+- `imageio-ffmpeg`
+
+### Database
+
+- MySQL
+
+## How It Works
+
+```text
+Browser
+  |
+  | Upload video
+  v
+FastAPI backend
+  |
+  | Extract audio with bundled FFmpeg
+  v
+Audio file
+  |
+  | Send to Deepgram
+  v
+Transcript words with timestamps
+  |
+  | Group into subtitle sentences
+  v
+MySQL + downloadable SRT
+```
+
+The backend uses `imageio-ffmpeg`, which provides a bundled FFmpeg executable.
+In normal use, a separate system-wide FFmpeg install is not required.
 
 ## Project Structure
 
 ```text
-api/        FastAPI backend
-app/        Vite React frontend
-run.md      Local PowerShell run commands
-deploy.md   Docker deployment notes
+.
+|-- api/                         # FastAPI backend
+|   |-- main.py                  # API routes and app startup
+|   |-- config.py                # Environment-based settings
+|   |-- database.py              # SQLAlchemy engine/session setup
+|   |-- models.py                # Subtitle database model
+|   |-- requirements.txt         # Python dependencies
+|   `-- services/
+|       |-- media.py             # Audio extraction
+|       |-- deepgram.py          # Deepgram transcription
+|       `-- subtitles.py         # Subtitle formatting helpers
+|
+|-- app/                         # Vite React frontend
+|   |-- src/
+|   |   |-- App.tsx
+|   |   |-- components/
+|   |   |-- lib/
+|   |   `-- types.ts
+|   |-- package.json
+|   `-- vite.config.ts
+|
+|-- development.env.example      # Local env template
+|-- production.env.example       # Production env template
+|-- run.md                       # Local PowerShell commands
+`-- deploy.md                    # Docker deployment notes
 ```
 
-## Environment Files
+## Environment Variables
 
-Use the root env files as the source:
+Create local env files from the example files and fill in your own values.
+
+```env
+PORT=5000
+
+DB_HOST=your-db-host
+DB_PORT=3306
+DB_USER=your-db-user
+DB_PASSWORD=your-db-password
+DB_NAME=your-db-name
+
+DEEPGRAM_API_KEY=your-deepgram-api-key
+
+VITE_API_URL=http://localhost:5000
+```
+
+Use:
 
 ```text
 development.env   Local development
-production.env    Docker/production deployment
+production.env    Docker or production deployment
 ```
 
-Example files are included:
+Do not commit real secrets.
 
-```text
-development.env.example
-production.env.example
-```
+## Local Development
 
-## Local Run
-
-See [run.md](run.md) for PowerShell commands.
+Local run commands are documented in [run.md](run.md).
 
 Default local URLs:
 
@@ -49,15 +136,119 @@ Backend:  http://localhost:5000
 API docs: http://localhost:5000/docs
 ```
 
-## Docker Deploy
+Quick start on Windows PowerShell:
 
-See [deploy.md](deploy.md) for Docker deployment commands and example Docker
-files.
+```powershell
+Copy-Item development.env api\.env
+Get-Content development.env | Where-Object { $_ -match '^VITE_' } | Set-Content app\.env
+```
 
-## Notes
+Start the backend:
 
-- The backend uses `imageio-ffmpeg`, so a separate system FFmpeg install is not
-  normally required.
-- The MySQL database must already exist. The backend creates the `subtitles`
-  table on startup if needed.
-- Do not commit real `.env` files or secrets.
+```powershell
+cd api
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 5000
+```
+
+Start the frontend in another terminal:
+
+```powershell
+cd app
+npm install
+npm run dev
+```
+
+## API Endpoints
+
+### `POST /upload`
+
+Upload a video file and generate subtitles.
+
+Form field:
+
+```text
+video
+```
+
+Response includes:
+
+```json
+{
+  "message": "Subtitles fetched from Deepgram API and saved to database.",
+  "sha256": "audio-hash",
+  "filename": "original-file-name",
+  "format": "json",
+  "subtitleSize": 12
+}
+```
+
+### `GET /subtitles/recent`
+
+Returns recent subtitle records from MySQL.
+
+### `GET /subtitles/{sha256}`
+
+Downloads the generated `.srt` file for a subtitle record.
+
+## Docker Deployment
+
+Docker deployment notes are documented in [deploy.md](deploy.md).
+
+Use `production.env` for deployment configuration. Set `VITE_API_URL` to the
+public backend URL before building the frontend image because Vite includes that
+value in the static frontend bundle.
+
+## Database Notes
+
+The backend creates the `subtitles` table automatically on startup if it does
+not already exist.
+
+The MySQL database itself must already exist, especially on shared hosting where
+application users often do not have permission to create databases.
+
+## Subtitle Storage
+
+Subtitle lines are stored in MySQL as JSON, with each line containing:
+
+```json
+{
+  "start": 0.0,
+  "end": 2.5,
+  "text": "Example subtitle text"
+}
+```
+
+When users download subtitles, the backend converts this JSON data into SRT
+format.
+
+## Build
+
+Build the frontend:
+
+```powershell
+cd app
+npm run build
+```
+
+Compile-check backend Python files:
+
+```powershell
+cd api
+.\.venv\Scripts\python.exe -m py_compile main.py services\media.py services\deepgram.py services\subtitles.py
+```
+
+## Security Notes
+
+- Keep `.env` files out of Git.
+- Rotate any API keys or database credentials that were accidentally shared.
+- Use HTTPS in production.
+- Restrict CORS origins before deploying to a public production environment.
+- Use a production-ready reverse proxy in front of the backend when deploying
+  outside Docker Compose.
+
+## License
+
+Add a license before publishing this project publicly.
