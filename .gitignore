@@ -79,6 +79,10 @@ web_modules/
 .env.production.local
 .env.local
 
+# Environment-specific config (contain secrets — never commit; commit the .example files instead)
+development.env
+production.env
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

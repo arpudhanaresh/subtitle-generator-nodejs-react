@@ -6,7 +6,25 @@
       "Bash(node -e \"const v=JSON.parse\\(require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\)\\); const sorted=v.filter\\(x=>!x.includes\\('-'\\)\\); console.log\\('latest 1.x:', sorted.filter\\(x=>x.startsWith\\('1.'\\)\\).slice\\(-3\\).join\\(', '\\)\\); console.log\\('latest 2.x:', sorted.filter\\(x=>x.startsWith\\('2.'\\)\\).slice\\(-3\\).join\\(', '\\)\\)\")",
       "Bash(node -e \"const lock=require\\('./package-lock.json'\\); const entries=Object.keys\\(lock.packages\\).filter\\(k=>k.includes\\('brace-expansion'\\)\\); entries.forEach\\(k=>console.log\\(k, lock.packages[k].version\\)\\)\")",
       "Bash(node -e \"const lock=require\\('./package-lock.json'\\); const entries=Object.keys\\(lock.packages\\).filter\\(k=>k.includes\\('picomatch'\\)\\); entries.forEach\\(k=>console.log\\(k, lock.packages[k].version\\)\\)\")",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(npm --version)",
+      "Bash(npm outdated *)",
+      "Read(//d/d/Others/Repo/subtitle-generator-nodejs-react/**)",
+      "Read(//d/d/Others/Repo/subtitle-generator-nodejs-react/app/**)",
+      "Bash(npm test *)",
+      "Bash(node index.js)",
+      "Bash(curl -s -w \"\\\\nHTTP %{http_code}\\\\n\" http://localhost:5000/subtitles/recent)",
+      "Bash(./.venv/Scripts/python.exe -m pip install --upgrade pip --quiet)",
+      "Bash(./.venv/Scripts/python.exe -m pip install -r requirements.txt)",
+      "Bash(./.venv/Scripts/python.exe main.py)",
+      "Bash(echo \"TSC_EXIT_CODE=$?\")",
+      "Bash(.venv/Scripts/python.exe -c \"import fastapi, sqlalchemy, pymysql; import sys; print\\('python', sys.version\\); print\\('fastapi', fastapi.__version__\\); print\\('sqlalchemy', sqlalchemy.__version__\\)\")",
+      "Bash(echo \"BUILD_EXIT_CODE=$?\")",
+      "Bash(git ls-tree *)",
+      "Bash(.venv/Scripts/python.exe _verify.py)",
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(python -c ' *)",
+      "Bash(./.venv/Scripts/python.exe -c ' *)"
     ]
   }
 }
